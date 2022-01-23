@@ -10,35 +10,35 @@ namespace CarGame.Units
         // Start is called before the first frame update
 
         private Rigidbody rb;
-        private Collider collider;
         private Vector3 vel;
-        private float speedMultiplayer = 1f;
         private Vector3 targetVel = new Vector3();
+        public override float speedMultiplier { get; set; } = 1f;
 
-
-        public override void EnterState(PlayerManager manager)
+        public override void EnterState(PlayerManager player)
         {
-            rb = manager.rigidBody;
-            collider = manager.boxCollider;
+            rb = player.rigidBody;
+
+            UnityEngine.Debug.Log("entered Base state");
         }
 
-        public override void Interact(PlayerManager manager)
+        public override void Interact(PlayerManager player)
         {
             throw new System.NotImplementedException();
         }
 
-        public override void Update(PlayerManager manager)
+        public override void Update(PlayerManager player)
         {
-            targetVel.x = manager.maxSpeed * speedMultiplayer * manager.XAxis;
+
+            targetVel.x = player.baseSpeed * speedMultiplier * player.xAxis;
             targetVel.y = rb.velocity.y;
-            targetVel.z = manager.maxSpeed * speedMultiplayer * manager.ZAxis;
+            targetVel.z = player.baseSpeed * speedMultiplier * player.zAxis;
            
 
-            manager.targetVelocity = Vector3.SmoothDamp(
+            player.targetVelocity = Vector3.SmoothDamp(
                 rb.velocity,
                 targetVel,
                 ref vel, 
-                manager.SmothingTime
+                player.smothingTime
                 );
         }
     }

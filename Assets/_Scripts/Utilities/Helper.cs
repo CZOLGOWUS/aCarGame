@@ -5,13 +5,13 @@ using UnityEngine;
 namespace CarGame.Helpers
 {
 
-    public class Helper
+    public static class Helper
     {
-        public static ViewportArea GetCameraViewportArea(Camera camera, LayerMask layer)
+        public static SquareArea GetCameraViewportArea(Camera camera, LayerMask layer)
         {
             CameraRays _cameraRays = new CameraRays();
             CameraRayHits _cameraRayHits = new CameraRayHits();
-            ViewportArea _viewportArea = new ViewportArea();
+            SquareArea _viewportArea = new SquareArea();
 
             _cameraRays.topLeft = camera.ViewportPointToRay(new Vector3(0, 1, 0));
             _cameraRays.topRight = camera.ViewportPointToRay(new Vector3(1, 1, 0));
@@ -33,6 +33,63 @@ namespace CarGame.Helpers
         }
 
 
+        /// <summary>
+        /// 
+        /// 0 : is in bounds, 
+        /// -1 : out of bounds to the left, 
+        /// 1 : out of bounds to the right
+        /// 
+        /// </summary>
+        /// <param name="area">the SquareArea struct of the given area</param>
+        /// <param name="t"> transform of the object that is mean to be checked</param>
+        /// <returns></returns>
+        public static int IsOutOfBoundsX(SquareArea area, Transform t, BoxCollider c , float boundsThicknes)
+        {
+            Vector3 position = t.position;
+            Vector3 bounds = c.bounds.extents;
+
+            if (position.x - bounds.x <= area.topLeft.x || position.x - bounds.x <= area.bottomLeft.x)
+            {
+                return -1;
+            }
+
+            if (position.x + bounds.x >= area.bottomRight.x || position.x + bounds.x >= area.topRight.x)
+            {
+                return 1;
+            }
+
+            return 0;
+        }
+
+
+        /// <summary>
+        /// 
+        /// 0 : is in bounds, 
+        /// -1 : out of bounds to the bottom, 
+        /// 1 : out of bounds to the top
+        /// 
+        /// </summary>
+        /// <param name="area">the SquareArea struct of the given area</param>
+        /// <param name="t"> transform of the object that is mean to be checked</param>
+        /// <returns></returns>
+        public static int IsOutOfBoundsZ(SquareArea area, Transform t, BoxCollider c, float boundsThicknes)
+        {
+            Vector3 position = t.position;
+            Vector3 bounds = c.bounds.extents;
+
+            if (position.z + bounds.z <= area.bottomRight.z || position.z - bounds.z <= area.bottomLeft.z)
+            {
+                return -1;
+            }
+
+            if (position.z + bounds.z >= area.topRight.z || position.z + bounds.z >= area.topLeft.z)
+            {
+                return 1;
+            }
+
+            return 0;
+        }
+
     }
 
     public struct CameraRays
@@ -51,11 +108,12 @@ namespace CarGame.Helpers
         public RaycastHit bottomRight;
     }
 
-    public struct ViewportArea
+    public struct SquareArea
     {
         public Vector3 topRight;
         public Vector3 topLeft;
         public Vector3 bottomLeft;
         public Vector3 bottomRight;
     }
+
 }
