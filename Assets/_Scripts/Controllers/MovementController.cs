@@ -14,7 +14,6 @@ namespace CarGame.Controllers
         public MovementController(Rigidbody rb, Collider col)
         {
             this.rb = rb;
-            this.colldier = col;
         }
 
         public void Move(Vector3 velocity)

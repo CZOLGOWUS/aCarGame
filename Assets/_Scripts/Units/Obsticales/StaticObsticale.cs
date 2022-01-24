@@ -20,7 +20,6 @@ namespace CarGame
 
         public override void OnHit(PlayerManager player)
         {
-            Debug.Log("player hit");
             player.ChangeState(player.playerStandardHitState);
         }
     }

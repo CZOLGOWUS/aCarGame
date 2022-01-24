@@ -11,10 +11,11 @@ using System;
 namespace CarGame.Managers
 {
     [RequireComponent(typeof(Rigidbody),typeof(BoxCollider))]
-    public class PlayerManager : StaticSingleton<PlayerManager>
+    public class PlayerManager : Singleton<PlayerManager>
     {
 
         public event Action OnPlayerDeath;
+        public event Action<int> OnPlayerHit;
 
         private Rigidbody _rb;
         private BoxCollider _col;
@@ -27,8 +28,11 @@ namespace CarGame.Managers
 
         private SquareArea _gameArea;
         private Vector3 _targetVelocity = new Vector3();
+        private int _currentHP;
+
 
         [SerializeField] private int _maxHP = 10;
+        [SerializeField] private int _startingHP = 3;
         [SerializeField] private float _baseSpeed = 10f;
         [Range(0f,1f)]
         [SerializeField] private float _smothingTime = 0.01f;
@@ -46,11 +50,11 @@ namespace CarGame.Managers
 
         public float smothingTime { get => _smothingTime; set => _smothingTime = value; }
         public float baseSpeed { get { return _baseSpeed; } private set { _baseSpeed = value; } }
-        public int maxHP { get => maxHP; set => maxHP = value; }
-        public int currentHP { get; private set; }
+        public int maxHP { get => _maxHP; set => _maxHP = value;  }
+        public int currentHP { get => _currentHP; set => _currentHP = value; }
+        public int startingHP { get => _startingHP; set => _startingHP = value; }
 
-
-        private void Awake()
+        private void OnEnable()
         {
             _rb = GetComponent<Rigidbody>();
             _col = GetComponent<BoxCollider>();
@@ -78,6 +82,33 @@ namespace CarGame.Managers
 
             _movementController.Move(targetVelocity);
         }
+
+
+        public void ModifyHP(int hpModification)
+        {
+            if (currentHP + hpModification > maxHP)
+            {
+                return;
+            }
+            else if (currentHP + hpModification <= 0)
+            {
+                OnPlayerDeath();
+            }
+
+            if(hpModification > 0)
+            {
+                currentHP += hpModification;
+                OnPlayerHit(hpModification);
+            }
+            else if(hpModification < 0)
+            {
+                currentHP += hpModification;
+                OnPlayerHit(hpModification);
+            }
+            
+        }
+    
+
 
         private void HandlePlayAreaBounds()
         {
@@ -110,6 +141,7 @@ namespace CarGame.Managers
             playerCurrentState = newState;
             playerCurrentState.EnterState(this);
         }
+
 
 
         private void OnTriggerEnter(Collider other)

@@ -17,8 +17,6 @@ namespace CarGame.Units
         public override void EnterState(PlayerManager player)
         {
             rb = player.rigidBody;
-
-            UnityEngine.Debug.Log("entered Base state");
         }
 
         public override void Interact(PlayerManager player)

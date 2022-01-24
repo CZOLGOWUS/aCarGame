@@ -27,7 +27,8 @@ namespace CarGame.Units
 
             rb.AddForce(-Vector3.forward * 15f,ForceMode.Impulse);
 
-            UnityEngine.Debug.Log("entered Standard hit state");
+            player.ModifyHP(-1);
+
         }
 
         public override void Interact(PlayerManager player)
@@ -56,6 +57,8 @@ namespace CarGame.Units
         {
             float effectTimeCount = 0f;
 
+            player.boxCollider.enabled = false;
+
             while(effectTimeCount < effectTime)
             {
                 yield return new WaitForFixedUpdate();
@@ -64,6 +67,7 @@ namespace CarGame.Units
                 effectTimeCount += Time.deltaTime;
 
             }
+            player.boxCollider.enabled = true;
 
             currentSpeedMultiplier = speedMultiplier;
 

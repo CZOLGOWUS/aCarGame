@@ -8,6 +8,7 @@ using CarGame.Controllers;
 using CarGame.Helpers;
 using UnityEngine.UI;
 using TMPro;
+using System;
 
 namespace CarGame
 {
@@ -21,12 +22,14 @@ namespace CarGame
         [SerializeField] private RectTransform HPPanel;
         [SerializeField] private GameObject heartPrefab;
         [SerializeField] private RoadLineController roadLineController;
+        [SerializeField] private GameHUDManager _gameHUDController;
+        [SerializeField] private DeathScreenManager _deathMenuManager;
 
         [Header("spawner settings")]
         private float timeBetweenObsticaleSpawns = 0.5f;
+        private float timeBetweenVehicleSpawns = 0.8f;
 
-
-        private GameHUDController _gameHUDController;
+        private int playersScore = 0;
   
     
         private PlayerManager _playerManager;
@@ -39,13 +42,20 @@ namespace CarGame
         private void OnEnable()
         {
             _obsticleSpawner = GetComponent<IObsticaleSpawner>();
-            _gameHUDController = new GameHUDController(distanceUI, HPPanel, heartPrefab);
         }
 
 
         private void Start()
         {
             _playerManager = FindObjectOfType<PlayerManager>();
+
+            _playerManager.OnPlayerHit += _gameHUDController.UpdateHP;
+
+            _playerManager.OnPlayerDeath += DeathScreenShow;
+
+            _playerManager.ModifyHP(_playerManager.startingHP);
+
+
             StartCoroutine(DistanceUpdateHandle(_distanceToAddEveryTick));
             StartCoroutine(SpawnOffRoadRandomObsticale());
             StartCoroutine(SpawnMainRoadRandomObsticale());
@@ -59,12 +69,23 @@ namespace CarGame
         }
 
 
+        public void DeathScreenShow()
+        {
+            _deathMenuManager.DisplayScore(playersScore);
+
+            _gameHUDController.gameObject.SetActive(false);
+            _deathMenuManager.gameObject.SetActive(true);
+
+            Time.timeScale = 0f;
+        }
+
+
         private IEnumerator DistanceUpdateHandle(int distanceToAdd)
         {
             while (true)
             {
                 yield return new WaitForSeconds(_secondsBetwenDistanceTick);
-                _gameHUDController.UpdateDistance(distanceToAdd);
+                playersScore = _gameHUDController.UpdateDistance( Mathf.FloorToInt(distanceToAdd * _playerManager.playerCurrentState.speedMultiplier));
             }
         }
 
@@ -81,7 +102,7 @@ namespace CarGame
         {
             while (true)
             {
-                yield return new WaitForSeconds(timeBetweenObsticaleSpawns);
+                yield return new WaitForSeconds(timeBetweenVehicleSpawns);
                 _obsticleSpawner.RandomMainRoadSpawn();
             }
         }

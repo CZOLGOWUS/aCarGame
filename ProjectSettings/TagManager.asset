@@ -9,6 +9,7 @@ TagManager:
   - DistanceUI
   - HUD
   - RoadLine
+  - HPSprite
   layers:
   - Default
   - TransparentFX
