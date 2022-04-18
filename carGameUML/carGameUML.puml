@@ -1,0 +1,168 @@
+@startuml
+'https://plantuml.com/sequence-diagram
+
+node Observer{
+
+    class GameEngine
+    {
+        + InputSystem
+        + UIEventSystem
+    }
+
+    class PlayerManager
+    {
+        Singleton
+
+        - HandlePlayAreaBounds() : void
+        + ModifyHP(int hp) : void
+        + ChangeState(PlayerState newState)
+
+    }
+
+    PlayerManager --o GameEngine : unity Observer system
+}
+
+
+node Facade/Mediator{
+    class GameManager
+    {
+
+    }
+
+
+}
+
+GameManager --> IRoadLineController
+GameManager --> IGameHudController
+
+interface IDeathScreenManager
+{
+    + DisplayScore(int score) : void
+    + OnPlayAgain() : void
+    + OnExit() : void
+}
+
+class DeathScreenManager implements IDeathScreenManager
+{
+    Singleton
+}
+
+interface IRoadLineController
+{
+    + UpdateDistance(int distanceToAdd) : void
+    + UpdateHP(int hpModification) : void
+}
+
+class RoadLineController implements IRoadLineController
+{
+    Singleton
+}
+
+interface IHittable
+{
+    + OnHit(PlayerManager player) : void
+}
+
+node Factory{
+    abstract class Obstacle implements IHittable
+    {
+        + OnHit(PlayerManger) : void
+    }
+
+    class StaticObstacle implements Obstacle
+    {
+
+    }
+
+    class VehicleObstacle implements Obstacle
+    {
+
+    }
+
+    interface IObstacleSpawner
+    {
+        + RandomMainRoadSpawn() : void
+        + RandomOffRoadSpawn() : void
+    }
+
+    class ObstacleSpawner implements IObstacleSpawner
+    {
+
+    }
+
+    class VehicleSpawner implements IObstacleSpawner
+    {
+
+    }
+}
+
+GameManager --> IObstacleSpawner
+IObstacleSpawner *-- Obstacle
+
+GameManager --> IDeathScreenManager
+
+
+
+node StateMachine{
+    class PlayerManager
+    {
+
+    }
+
+    abstract class PlayerState
+    {
+        + property speedMultiplier { } : float
+        + EnterState() : void
+        + Update() : void
+        + Interact() : void
+    }
+
+
+    class PlayerBaseState implements PlayerState
+    {
+
+    }
+
+    class PlayerStandardHitState implements PlayerState
+    {
+
+    }
+}
+
+
+node Strategy{
+    class MovementController
+    {
+        + Move(Vector3) : void
+    }
+}
+
+interface IGameHudController
+{
+    + UpdateDistance(float distanceToAdd) : void
+    + UpdateHP(int hp) : void
+}
+
+class GameHudController implements IGameHudController
+{
+    Singleton
+}
+
+class Helper
+{
+    this is a static class
+    + {static} Move(Vector3) : void
+}
+
+
+
+PlayerManager *-- PlayerState
+
+
+
+MovementController --* PlayerManager
+
+GameManager --> PlayerManager
+GameManager --> Helper
+
+@enduml
